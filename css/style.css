@@ -1,0 +1,63 @@
+
+*{
+    margin: 0;
+    padding:0;
+    box-sizing: border-box;
+    font-family: 'Press Start 2P', sans-serif;
+}
+
+body{
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+}
+
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.title{
+    font-size: 20px;
+    margin-bottom: 50px;
+}
+
+.buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.buttons button{
+    margin-top: 20px;
+    padding: 20px 30px;
+    font-size: 20px;
+    background: transparent;
+    cursor: pointer;
+    background: #000;
+    color: #fff;
+}
+
+.buttons button:hover{
+    background: #fff;
+    color: #000;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;/* Centraliza o conteúdo horizontalmente */
+    align-items: center; /* Centraliza o conteúdo verticalmente */
+    height: 50px; /* Altura do rodapé */       
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.footer p {
+    margin: 0;
+    font-size: 12px; /* Tamanho da fonte do texto do rodapé */
+    color: #333; /* Cor do texto do rodapé */
+}
