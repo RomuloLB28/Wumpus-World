@@ -118,7 +118,11 @@ function startGame() {
         time++;
         timerElement.textContent = time;
     }, 1000);
+
+    startAgent(); // Inicia o agente
 }
+
+
 
 // Função para reiniciar o jogo
 function restartGame() {
