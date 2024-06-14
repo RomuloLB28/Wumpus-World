@@ -1,11 +1,8 @@
-
 function gerarOrientacaoAleatoria() {
-
     var orientacoes = ['N', 'S', 'E', 'W'];
     var indiceAleatorio = Math.floor(Math.random() * orientacoes.length);
     return orientacoes[indiceAleatorio];
 }
-
 
 class FirstAgent {
     constructor(cells, rows, cols) {
@@ -67,7 +64,6 @@ class FirstAgent {
         const glitter = this.cells[index].querySelector("img[src*='Brilho.png']");
         if (gold) gold.remove();
         if (glitter) glitter.remove();
-        this.hasGold = false;
     }
 
     isGoldHere() {
@@ -111,7 +107,7 @@ class FirstAgent {
         // Marca a posição atual como visitada
         this.visited.add(`${this.position.x},${this.position.y}`);
 
-        if (this.isStenchHere() || this.isBreezeHere()) {
+        if (this.isStenchHere()) {
             this.shootArrow();
         } else {
             this.explore();
@@ -138,6 +134,7 @@ class FirstAgent {
         }, 1000);
 
         setTimeout(() => {
+            this.removeAgentImage();
             this.explore();
         }, 1500);
     }
@@ -146,8 +143,8 @@ class FirstAgent {
         const adjacentPositions = [
             { x: position.x, y: position.y - 1 },
             { x: position.x, y: position.y + 1 },
-            { x: position.x - 1, y: position.x },
-            { x: position.x + 1, y: position.x }
+            { x: position.x - 1, y: position.y },
+            { x: position.x + 1, y: position.y }
         ];
 
         return adjacentPositions.some(pos => {
@@ -178,60 +175,46 @@ class FirstAgent {
 
     explore() {
         const nextPosition = this.getNextPosition();
-        if (!this.visited.has(`${nextPosition.x},${nextPosition.y}`)) {
-            this.moveForward();
-        } else {
-            // Lista de direções disponíveis
-            const availableDirections = [];
-    
-            // Verifica se é possível mover para a esquerda
-            this.turnLeft();
-            const leftPosition = this.getNextPosition();
-            if (!this.visited.has(`${leftPosition.x},${leftPosition.y}`)) {
-                availableDirections.push('left');
+
+        // Lista de direções disponíveis
+        const availableDirections = ['left', 'right', 'up', 'down'];
+        const currentDirection = this.orientation;
+
+        // Verifica e move em todas as direções possíveis
+        while (availableDirections.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableDirections.length);
+            const randomDirection = availableDirections.splice(randomIndex, 1)[0];
+
+            switch (randomDirection) {
+                case 'left':
+                    this.turnLeft();
+                    break;
+                case 'up':
+                    this.turnUp();
+                    break;
+                case 'down':
+                    this.turnDown();
+                    break;
+                case 'right':
+                    this.turnRight();
+                    break;
             }
-    
-            // Verifica se é possível mover para cima
-            this.turnUp();
-            const upPosition = this.getNextPosition();
-            if (!this.visited.has(`${upPosition.x},${upPosition.y}`)) {
-                availableDirections.push('up');
-            }
-    
-            // Verifica se é possível mover para baixo
-            this.turnDown();
-            const downPosition = this.getNextPosition();
-            if (!this.visited.has(`${downPosition.x},${downPosition.y}`)) {
-                availableDirections.push('down');
-            }
-    
-            // Se houver direções disponíveis, escolhe uma aleatória
-            if (availableDirections.length > 0) {
-                const randomIndex = Math.floor(Math.random() * availableDirections.length);
-                const randomDirection = availableDirections[randomIndex];
-                
-                // Move na direção escolhida aleatoriamente
-                switch (randomDirection) {
-                    case 'left':
-                        this.turnLeft();
-                        break;
-                    case 'up':
-                        this.turnUp();
-                        break;
-                    case 'down':
-                        this.turnDown();
-                        break;
-                }
+
+            const newPosition = this.getNextPosition();
+
+            // Se a nova posição é válida, move o agente
+            if (newPosition.x >= 0 && newPosition.x < this.cols && newPosition.y >= 0 && newPosition.y < this.rows) {
                 this.moveForward();
-            } else {
-                // Se todas as direções estiverem bloqueadas, vire para a direita
-                this.turnRight();
-                this.moveForward();
+                return;
             }
+
+            // Reseta a orientação para a original se a direção não foi válida
+            this.orientation = currentDirection;
         }
+
+        // Se todas as direções foram verificadas, move para frente
+        this.moveForward();
     }
-    
-    
 
     getNextPosition() {
         const nextPosition = { ...this.position };
@@ -261,7 +244,7 @@ class FirstAgent {
 
     resetToInitialPosition() {
         this.position = { x: 0, y: 0 };
-        this.orientation = 'E';
+        this.orientation = gerarOrientacaoAleatoria();
         this.path = [];
         this.shotArrows.clear(); // Reset the shot arrows to allow new shots
     }
@@ -279,6 +262,11 @@ class FirstAgent {
         const index = this.position.y * this.cols + this.position.x;
         let agent = document.querySelector("img[src*='AgenteAndando.gif'], img[src*='AgenteAtirando.gif']");
         if (agent) agent.src = `/../Images/${imageSrc}`;
+    }
+
+    removeAgentImage() {
+        const agentImages = document.querySelectorAll("img[src*='AgenteAtirando.png']");
+        agentImages.forEach(img => img.remove());
     }
 }
 
