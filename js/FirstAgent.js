@@ -15,8 +15,6 @@ class FirstAgent {
         this.hasGold = false;
         this.alive = true;
         this.wumpusAlive = true;
-        this.path = [];
-        this.visited = new Set();
         this.shotArrows = new Set(); // Para evitar atirar na mesma posição repetidamente
     }
 
@@ -41,7 +39,6 @@ class FirstAgent {
     }
 
     moveForward() {
-        this.path.push({ ...this.position });
         switch (this.orientation) {
             case 'N':
                 if (this.position.y > 0) this.position.y--;
@@ -104,9 +101,6 @@ class FirstAgent {
             this.grabGold();
             alert('Agente encontrou o ouro!');
         }
-
-        // Marca a posição atual como visitada
-        this.visited.add(`${this.position.x},${this.position.y}`);
 
         if (this.isStenchHere()) {
             this.shootArrow();
@@ -175,8 +169,6 @@ class FirstAgent {
     }
 
     explore() {
-        const nextPosition = this.getNextPosition();
-
         // Lista de direções disponíveis
         const availableDirections = ['left', 'right', 'up', 'down'];
         const currentDirection = this.orientation;
@@ -236,17 +228,9 @@ class FirstAgent {
         return nextPosition;
     }
 
-    backtrack() {
-        if (this.path.length > 0) {
-            const previousPosition = this.path.pop();
-            this.position = previousPosition;
-        }
-    }
-
     resetToInitialPosition() {
         this.position = { x: 0, y: 0 };
         this.orientation = gerarOrientacaoAleatoria();
-        this.path = [];
         this.shotArrows.clear(); // Reset the shot arrows to allow new shots
     }
 
@@ -284,7 +268,7 @@ function startAgent() {
             agent.move();
             agent.updatePosition();
         } else if (agent.alive && agent.hasGold && (agent.position.x !== 0 || agent.position.y !== 0)) {
-            agent.backtrack();
+            agent.explore(); // Agente se movimenta aleatoriamente ao invés de rastrear o caminho de volta
             agent.updatePosition();
         } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
             clearInterval(agentInterval);
