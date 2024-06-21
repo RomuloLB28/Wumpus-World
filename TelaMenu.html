@@ -19,12 +19,16 @@
         <section class="buttons">
             <button onclick="window.location.href='html/TelaJogo.html'">PLAY</button>
             <button onclick="window.location.href='html/TelaConfig.html'">CONFIG</button>
-            <button id="quit-button" onclick="window.close();">QUIT</button>
+            <button id="quit-button" onclick="fechar()">QUIT</button>
         </section>
     </main>
     <footer class="footer">
         <p>&copy; 2024. Todos os direitos reservados.</p>
     </footer>
-    <script src="js/script.js"></script>
+    <script src="js/script.js">
+        function fechar(){
+            window.close();
+        }
+    </script>
 </body>
 </html>
