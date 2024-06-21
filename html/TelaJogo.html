@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Menu</title>
     
-    <link rel="stylesheet" href="/../css/stylegame.css">
+    <link rel="stylesheet" href="../css/stylegame.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -28,7 +28,26 @@
         </section>
     </main>
 
-    <script src="/../js/scriptgame.js"></script>
-    <script src="/../js/FirstAgent.js"></script>
+    <script src="../js/scriptgame.js"></script>
+    <script>
+    // Carrega o script do agente selecionado
+        const selectedAgent = localStorage.getItem('selectedAgent') || 'Agente 1'; // Default para Agente 1 se não estiver definido
+        let script = document.createElement('script');
+        switch (selectedAgent) {
+            case 'Agente 1':
+                script.src = '../js/FirstAgent.js';
+                break;
+            case 'Agente 2':
+                script.src = '../js/SecondAgent.js';
+                break;
+            case 'Agente 3':
+                script.src = '../js/ThirdAgent.js';
+                break;
+            default:
+                script.src = '../js/FirstAgent.js';
+        }
+        document.head.appendChild(script);
+    </script>
+
 </body>
 </html>

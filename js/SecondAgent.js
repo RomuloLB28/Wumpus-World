@@ -1,11 +1,10 @@
-
 function gerarOrientacaoAleatoria() {
     var orientacoes = ['N', 'S', 'E', 'W'];
     var indiceAleatorio = Math.floor(Math.random() * orientacoes.length);
     return orientacoes[indiceAleatorio];
 }
 
-class FirstAgent {
+class SecondAgent {
     constructor(cells, rows, cols) {
         this.cells = cells;
         this.rows = rows;
@@ -176,46 +175,69 @@ class FirstAgent {
 
     explore() {
         const nextPosition = this.getNextPosition();
-
-        // Lista de direções disponíveis
-        const availableDirections = ['left', 'right', 'up', 'down'];
-        const currentDirection = this.orientation;
-
-        // Verifica e move em todas as direções possíveis
-        while (availableDirections.length > 0) {
-            const randomIndex = Math.floor(Math.random() * availableDirections.length);
-            const randomDirection = availableDirections.splice(randomIndex, 1)[0];
-
-            switch (randomDirection) {
-                case 'left':
-                    this.turnLeft();
-                    break;
-                case 'up':
-                    this.turnUp();
-                    break;
-                case 'down':
-                    this.turnDown();
-                    break;
-                case 'right':
-                    this.turnRight();
-                    break;
-            }
-
+        const availableDirections = [];
+    
+        // Verifica cada direção disponível
+        ['left', 'right', 'up', 'down'].forEach(direction => {
+            this.turn(direction);
             const newPosition = this.getNextPosition();
-
-            // Se a nova posição é válida, move o agente
-            if (newPosition.x >= 0 && newPosition.x < this.cols && newPosition.y >= 0 && newPosition.y < this.rows) {
-                this.moveForward();
-                return;
+            
+            // Se a nova posição é válida e não foi visitada antes, adiciona à lista de direções disponíveis
+            if (this.isPositionValid(newPosition) && !this.visited.has(`${newPosition.x},${newPosition.y}`)) {
+                availableDirections.push(direction);
             }
-
-            // Reseta a orientação para a original se a direção não foi válida
-            this.orientation = currentDirection;
+            
+            // Reseta a orientação para a original
+            this.turn(this.reverseDirection(direction));
+        });
+    
+        // Se houver direções disponíveis, escolhe uma aleatória para se mover
+        if (availableDirections.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableDirections.length);
+            this.turn(availableDirections[randomIndex]);
+            this.moveForward();
+        } else {
+            // Se não houver direções disponíveis, volta para a posição anterior
+            this.backtrack();
         }
-
-        // Se todas as direções foram verificadas, move para frente
-        this.moveForward();
     }
+    
+    isPositionValid(position) {
+        return position.x >= 0 && position.x < this.cols && position.y >= 0 && position.y < this.rows;
+    }
+    
+    reverseDirection(direction) {
+        switch (direction) {
+            case 'left':
+                return 'right';
+            case 'right':
+                return 'left';
+            case 'up':
+                return 'down';
+            case 'down':
+                return 'up';
+            default:
+                return direction;
+        }
+    }
+    
+    turn(direction) {
+        switch (direction) {
+            case 'left':
+                this.turnLeft();
+                break;
+            case 'up':
+                this.turnUp();
+                break;
+            case 'down':
+                this.turnDown();
+                break;
+            case 'right':
+                this.turnRight();
+                break;
+        }
+    }
+    
 
     getNextPosition() {
         const nextPosition = { ...this.position };
@@ -271,19 +293,26 @@ class FirstAgent {
     }
 }
 
-// Função para iniciar os movimentos automáticos do agente
-function startAgent() {
+function startSecondAgent() {
+    console.log("Iniciando agente...");
     const topSection = document.querySelector('.top');
+    if (!topSection) {
+        console.error("Elemento '.top' não encontrado.");
+        return;
+    }
     const cells = topSection.querySelectorAll('.cell');
     const rows = selectedLevel + 3;
     const cols = selectedLevel + 3;
-    const agent = new FirstAgent(cells, rows, cols);
+    const agent = new SecondAgent(cells, rows, cols);
+    console.log("Agente instanciado:", agent);
 
     const agentInterval = setInterval(() => {
         if (agent.alive && !agent.hasGold) {
+            console.log("Agente movendo...");
             agent.move();
             agent.updatePosition();
         } else if (agent.alive && agent.hasGold && (agent.position.x !== 0 || agent.position.y !== 0)) {
+            console.log("Agente voltando...");
             agent.backtrack();
             agent.updatePosition();
         } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
@@ -296,5 +325,6 @@ function startAgent() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    startAgent();
+    console.log("DOM completamente carregado e analisado.");
+    startSecondAgent();
 });

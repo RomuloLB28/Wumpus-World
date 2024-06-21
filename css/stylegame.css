@@ -25,8 +25,6 @@ h1 {
 
 .top {
     display: grid;
-    grid-template-columns: repeat(4, 100px);
-    grid-template-rows: repeat(4, 100px);
     gap: 0;
     margin-top: 0;
     position: relative;
@@ -69,4 +67,15 @@ button {
     margin: 5px;
     font-size: 14px;
     cursor: pointer;
+}
+
+.bar {
+    width: 10px;
+    height: 50px;
+    margin: 0 2px;
+    background-color: #ddd;
+}
+
+.bar.active {
+    background-color: #000;
 }
