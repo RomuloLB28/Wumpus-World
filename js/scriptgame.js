@@ -7,13 +7,16 @@ const counters = document.querySelector('.counters');
 let score = 10000;
 let time = 0;
 let timerInterval;
+let poçosIndices = [];
+let wumpusIndex;
+let ouroIndex;
+let cells = [];
 
 // Recupera as configurações salvas
 const selectedLevel = parseInt(localStorage.getItem('selectedLevel')) || 1;
 
 const rows = selectedLevel + 3;
 const cols = selectedLevel + 3;
-let cells = [];
 
 // Função para limpar o labirinto
 function clearLabirinto() {
@@ -24,6 +27,7 @@ function clearLabirinto() {
 // Função para gerar dinamicamente as células do labirinto
 function generateLabirinto() {
     clearLabirinto();
+    poçosIndices = [];
 
     topSection.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
     topSection.style.gridTemplateRows = `repeat(${rows}, 100px)`;
@@ -35,7 +39,6 @@ function generateLabirinto() {
         cells.push(cell);
     }
 
-    // Função para obter um índice aleatório não usado
     function getRandomIndex(excludedIndices = []) {
         let index;
         do {
@@ -44,7 +47,6 @@ function generateLabirinto() {
         return index;
     }
 
-    // Posiciona o Agente, Wumpus, poços, ouro e seus sinais
     const agentStartIndex = 0;
     const usedIndices = [agentStartIndex];
 
@@ -52,7 +54,7 @@ function generateLabirinto() {
     agent.src = '../Images/AgenteAndando.gif';
     cells[agentStartIndex].appendChild(agent);
 
-    const wumpusIndex = getRandomIndex(usedIndices);
+    wumpusIndex = getRandomIndex(usedIndices);
     usedIndices.push(wumpusIndex);
     const wumpus = document.createElement('img');
     wumpus.src = '../Images/Wumpus.png';
@@ -70,9 +72,8 @@ function generateLabirinto() {
         cells[index].appendChild(fedor);
     });
 
-    const poçosIndices = [];
     const numPoços = Math.floor(cells.length * 0.2);
-    while (poçosIndices.length < numPoços){
+    while (poçosIndices.length < numPoços) {
         const poçoIndex = getRandomIndex(usedIndices);
         poçosIndices.push(poçoIndex);
         usedIndices.push(poçoIndex);
@@ -96,7 +97,7 @@ function generateLabirinto() {
         });
     });
 
-    const ouroIndex = getRandomIndex(usedIndices);
+    ouroIndex = getRandomIndex(usedIndices);
     usedIndices.push(ouroIndex);
     const ouro = document.createElement('img');
     ouro.src = '../Images/Ouro.png';
@@ -106,6 +107,7 @@ function generateLabirinto() {
     brilho.src = '../Images/Brilho.png';
     cells[ouroIndex].appendChild(brilho);
 }
+
 
 // Atualiza os elementos de pontuação e tempo
 scoreElement.textContent = score;
@@ -130,6 +132,8 @@ function startGame() {
         startAgent(); // Inicia o agente 1
     } else if (selectedAgent === 'Agente 2') {
         startSecondAgent(); // Inicia o agente 2
+    }else if(selectedAgent === 'Agente 3'){
+        startThirdAgent();
     }
 }
 
