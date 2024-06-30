@@ -159,4 +159,3 @@ document.getElementById('backButton').addEventListener('click', back);
 
 // Esconde os contadores inicialmente
 counters.style.display = 'none';
-
