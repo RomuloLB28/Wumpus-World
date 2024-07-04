@@ -1,3 +1,5 @@
+// scriptgame.js
+
 const topSection = document.querySelector('.top');
 const scoreElement = document.getElementById('score');
 const timerElement = document.getElementById('timer');
@@ -12,7 +14,7 @@ let wumpusIndex;
 let ouroIndex;
 let cells = [];
 
-// Recupera as configurações salvas
+// Recupera as configurações salvas e gera o labirinto
 const selectedLevel = parseInt(localStorage.getItem('selectedLevel')) || 1;
 
 const rows = selectedLevel + 3;
@@ -108,7 +110,6 @@ function generateLabirinto() {
     cells[ouroIndex].appendChild(brilho);
 }
 
-
 // Atualiza os elementos de pontuação e tempo
 scoreElement.textContent = score;
 timerElement.textContent = time;
@@ -126,15 +127,8 @@ function startGame() {
         timerElement.textContent = time;
     }, 1000);
 
-    const selectedAgent = localStorage.getItem('selectedAgent');
-
-    if (selectedAgent === 'Agente 1') {
-        startAgent(); // Inicia o agente 1
-    } else if (selectedAgent === 'Agente 2') {
-        startSecondAgent(); // Inicia o agente 2
-    }else if(selectedAgent === 'Agente 3'){
-        startThirdAgent();
-    }
+    // Chama a função para iniciar o terceiro agente após o labirinto ser gerado
+    startThirdAgent();
 }
 
 // Função para reiniciar o jogo

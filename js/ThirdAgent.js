@@ -2,12 +2,28 @@
 const popSize = 100;
 const genomeLength = 50;
 const generations = 100;
-const mutationRate = 0.05;
+const mutationRate = 0.02;
 
 function gerarOrientacaoAleatoria() {
     var orientacoes = ['N', 'S', 'E', 'W'];
     var indiceAleatorio = Math.floor(Math.random() * orientacoes.length);
     return orientacoes[indiceAleatorio];
+}
+
+// Função para pegar o ouro visualmente
+function grabGold(individual) {
+    individual.hasGold = true;
+    const index = individual.position.y * cols + individual.position.x;
+    const gold = cells[index].querySelector("img[src*='Ouro.png']");
+    const glitter = cells[index].querySelector("img[src*='Brilho.png']");
+    if (gold) gold.remove();
+    if (glitter) glitter.remove();
+}
+
+// Função para verificar se há ouro na célula atual
+function isGoldHere(individual) {
+    const index = individual.position.y * cols + individual.position.x;
+    return cells[index].querySelector("img[src*='Ouro.png']") !== null;
 }
 
 // Geração inicial
@@ -19,7 +35,8 @@ function generatePopulation(size, genomeLength) {
             position: { x: 0, y: 0 },
             orientation: gerarOrientacaoAleatoria(),
             hasGold: false,
-            alive: true
+            alive: true,
+            fitness: 0 // Adiciona a propriedade fitness
         };
         for (let j = 0; j < genomeLength; j++) {
             individual.genome.push(Math.floor(Math.random() * 4));
@@ -40,45 +57,96 @@ function evaluate(individual, n, poços, wumpus, ouro) {
         if (action === 0) {  // Up
             x = Math.max(0, x - 1);
         } else if (action === 1) {  // Down
+            fitness -= 1;
             x = Math.min(n - 1, x + 1);
         } else if (action === 2) {  // Left
+            fitness -= 1;
             y = Math.max(0, y - 1);
         } else if (action === 3) {  // Right
+            fitness -= 1;
             y = Math.min(n - 1, y + 1);
         }
 
-        if (poços.some(p => p[0] === x && p[1] === y) || (x === wumpus[0] && y === wumpus[1])) {
-            return -1000;  // Perdeu, punição alta
+        // Verifica se o agente caiu em um poço (Pit)
+        if (poços.some(p => p[0] === x && p[1] === y)) {
+            individual.alive = false; // Marca o agente como morto
+            if (!individual.alive) {
+                fitness -= 1500;  // Penaliza se o indivíduo estiver morto
+            }
+            break;
+        }
+
+        // Verifica se o agente encontrou o Wumpus
+        if (x === wumpus[0] && y === wumpus[1]) {
+            individual.alive = false; // Marca o agente como morto
+            if (!individual.alive) {
+                fitness -= 1500;  // Penaliza se o indivíduo estiver morto
+            }
+            break;
         }
 
         if (x === ouro[0] && y === ouro[1]) {
             hasGold = true;
+            grabGold(individual);
         }
 
         if (hasGold && x === 0 && y === 0) {
-            return 1000 - genome.length;  // Encontrou o ouro e voltou, bônus por eficiência
+            fitness += 5000;  // Encontrou o ouro e voltou, bônus por eficiência
+            console.log("Agente Voltou com o ouro");
+            console.log(`${individual.fitness}`);
+            break;
+        }
+
+        // Verifica se o indivíduo saiu dos limites do mapa
+        if (x < 0 || x >= n || y < 0 || y >= n) {
+            fitness -= 200;  // Penalidade por sair do mapa
+            break;  // Termina a avaliação se o indivíduo saiu do mapa
         }
     }
 
-    return fitness;
+    individual.fitness = Math.max(0, fitness); // Armazena o fitness no objeto do indivíduo
+    return individual.fitness;
 }
 
-// Seleção (torneio)
-function tournamentSelection(population, fitnesses, k = 3) {
-    let selected = [];
-    for (let i = 0; i < k; i++) {
-        let idx = Math.floor(Math.random() * population.length);
-        selected.push({ individual: population[idx], fitness: fitnesses[idx] });
+
+// Seleção (torneio) - Apenas entre indivíduos com fitness > 0 e vivos
+function tournamentSelection(population, fitnesses) {
+    let validIndividuals = population.filter((individual, index) => fitnesses[index] > 0 && individual.alive);
+
+    if (validIndividuals.length === 0) {
+        // Caso não haja indivíduos com fitness positivo e vivos, retorna um indivíduo aleatório
+        let randomIndex = Math.floor(Math.random() * population.length);
+        return population[randomIndex];
     }
-    selected.sort((a, b) => b.fitness - a.fitness);
-    return selected[0].individual;
+
+    let selected = validIndividuals[0];
+    for (let i = 1; i < validIndividuals.length; i++) {
+        if (fitnesses[population.indexOf(validIndividuals[i])] > fitnesses[population.indexOf(selected)]) {
+            selected = validIndividuals[i];
+        }
+    }
+    return selected;
 }
 
-// Crossover de um ponto
+// Crossover alternando genes de forma aleatória entre os pais
 function crossover(parent1, parent2) {
-    let point = Math.floor(Math.random() * (genomeLength - 1)) + 1;
-    return parent1.genome.slice(0, point).concat(parent2.genome.slice(point));
+    // Verifica se os pais são definidos e têm o atributo 'genome'
+    if (!parent1 || !parent2 || !parent1.genome || !parent2.genome) {
+        console.error('Pais inválidos ou sem genoma:', parent1, parent2);
+        return [];
+    }
+
+    let offspringGenome = [];
+    for (let i = 0; i < genomeLength; i++) {
+        if (Math.random() < 0.5) {
+            offspringGenome.push(parent1.genome[i]);
+        } else {
+            offspringGenome.push(parent2.genome[i]);
+        }
+    }
+    return offspringGenome;
 }
+
 
 // Mutação
 function mutate(individual, mutationRate) {
@@ -89,38 +157,52 @@ function mutate(individual, mutationRate) {
     }
     return individual;
 }
-
-// Algoritmo Genético
 async function runGeneticAlgorithm(n, poços, wumpus, ouro) {
-    let population = generatePopulation(popSize, genomeLength);
+    let population = generatePopulation(popSize, genomeLength);  // Gera a população inicial
 
     for (let generation = 0; generation < generations; generation++) {
-        let fitnesses = population.map(individual => evaluate(individual, n, poços, wumpus, ouro));
-        let newPopulation = [];
+        let fitnesses = population.map(individual => evaluate(individual, n, poços, wumpus, ouro));  // Avalia o fitness de cada indivíduo
 
-        for (let i = 0; i < popSize; i++) {
-            let parent1 = tournamentSelection(population, fitnesses);
-            let parent2 = tournamentSelection(population, fitnesses);
-            let offspringGenome = mutate({ genome: crossover(parent1, parent2) }, mutationRate);
-            newPopulation.push({ ...offspringGenome, position: { x: 0, y: 0 }, orientation: gerarOrientacaoAleatoria(), hasGold: false, alive: true });
+        // Filtra indivíduos com fitness positivo e vivos
+        let survivingPopulation = population.filter((individual, index) => fitnesses[index] > 0 && individual.alive);
+
+        let selectedIndividuals = [...survivingPopulation];  // Começa com os indivíduos sobreviventes
+
+        // Seleciona os pais e cria novos indivíduos para preencher a população
+        while (selectedIndividuals.length < popSize) {
+            let parent1 = tournamentSelection(population, fitnesses);  // Seleciona o primeiro pai
+            let parent2 = tournamentSelection(population, fitnesses);  // Seleciona o segundo pai
+            let offspringGenome = crossover(parent1, parent2);  // Cria o genoma do filho através do crossover
+            mutate({ genome: offspringGenome }, mutationRate);  // Passa o genoma do filho para a função de mutação
+            selectedIndividuals.push({  // Adiciona o filho à nova população
+                genome: offspringGenome,
+                position: { x: 0, y: 0 },
+                orientation: parent1.orientation,
+                hasGold: false,
+                alive: true,
+                fitness: 0  // Adiciona a propriedade fitness
+            });
         }
 
-        population = newPopulation;
-
-        // Desenhar o melhor indivíduo de cada geração e aguardar a conclusão
-        let bestFitness = Math.max(...fitnesses);
-        let bestIndividual = population[fitnesses.indexOf(bestFitness)];
-        await drawIndividual(bestIndividual, n, poços, wumpus, ouro, generation);
-
-        // Aguardar um momento antes de passar para a próxima geração
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        population = selectedIndividuals;  // Atualiza a população para a próxima geração
     }
 
+    // Avalia a última população para encontrar o melhor indivíduo
     let finalFitnesses = population.map(individual => evaluate(individual, n, poços, wumpus, ouro));
     let bestFitness = Math.max(...finalFitnesses);
-    let bestIndividual = population[finalFitnesses.indexOf(bestFitness)];
+    
+    // Encontra o melhor indivíduo vivo com a maior fitness
+    let bestIndividual = population.reduce((best, current) => {
+        if (current.alive && evaluate(current, n, poços, wumpus, ouro) === bestFitness) {
+            return current;
+        }
+        return best;
+    }, null);
 
-    console.log(`Melhor solução encontrada: ${bestIndividual.genome}, Fitness: ${bestFitness}`);
+    console.log(`Melhor solução encontrada: ${JSON.stringify(bestIndividual)}, Fitness: ${bestFitness}`);
+
+    // Desenha o melhor indivíduo da última geração
+    await drawIndividual(bestIndividual, n, poços, wumpus, ouro, generations);
 
     return { population, fitness: bestFitness };
 }
@@ -176,16 +258,6 @@ async function drawIndividual(individual, n, poços, wumpus, ouro, generation) {
         if (cells[x * cols + y]) {
             cells[x * cols + y].appendChild(individualElement);
         }
-
-        // Se o indivíduo morrer ou pegar o ouro e voltar para a posição inicial, parar de desenhar
-        if (evaluate(individual, n, poços, wumpus, ouro) !== 0) {
-            break;
-        }
-    }
-
-    // Remove o indivíduo ao finalizar a execução
-    if (cells[x * cols + y] && cells[x * cols + y].contains(individualElement)) {
-        cells[x * cols + y].removeChild(individualElement);
     }
 
     console.log(`Geração ${generation}: Melhor indivíduo ${JSON.stringify(individual)}`);
