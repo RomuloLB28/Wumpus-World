@@ -72,6 +72,8 @@ function evaluate(individual, n, poços, wumpus, ouro) {
             individual.alive = false; // Marca o agente como morto
             if (!individual.alive) {
                 fitness -= 1500;  // Penaliza se o indivíduo estiver morto
+                console.log("Agente Morreu no poço");
+                console.log(`${individual.fitness}`);
             }
             break;
         }
@@ -81,6 +83,8 @@ function evaluate(individual, n, poços, wumpus, ouro) {
             individual.alive = false; // Marca o agente como morto
             if (!individual.alive) {
                 fitness -= 1500;  // Penaliza se o indivíduo estiver morto
+                console.log("Agente Mrreu para o wumpus");
+                console.log(`${individual.fitness}`);
             }
             break;
         }
@@ -135,7 +139,6 @@ function crossover(parent1, parent2) {
         console.error('Pais inválidos ou sem genoma:', parent1, parent2);
         return [];
     }
-
     let offspringGenome = [];
     for (let i = 0; i < genomeLength; i++) {
         if (Math.random() < 0.5) {

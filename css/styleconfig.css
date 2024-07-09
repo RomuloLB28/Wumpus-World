@@ -57,14 +57,25 @@ body {
 }
 
 .bar {
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     margin: 0 2px;
     background-color: #ccc;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .bar.active {
     background-color: #000;
+}
+
+.bar-number {
+    position: absolute;
+    font-size: 16px;
+    color: white;
+    z-index: 1;
 }
 
 .buttons {
@@ -104,6 +115,7 @@ body {
     font-size: 12px; /* Tamanho da fonte do texto do rodapé */
     color: #333; /* Cor do texto do rodapé */
 }
+
 button {
     padding: 10px 20px;
     margin: 5px;

@@ -1,5 +1,3 @@
-// scriptgame.js
-
 const topSection = document.querySelector('.top');
 const scoreElement = document.getElementById('score');
 const timerElement = document.getElementById('timer');
@@ -16,7 +14,6 @@ let cells = [];
 
 // Recupera as configurações salvas e gera o labirinto
 const selectedLevel = parseInt(localStorage.getItem('selectedLevel')) || 1;
-
 const rows = selectedLevel + 3;
 const cols = selectedLevel + 3;
 
