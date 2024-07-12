@@ -4,6 +4,8 @@ const timerElement = document.getElementById('timer');
 const playButton = document.getElementById('playButton');
 const gameButtons = document.getElementById('gameButtons');
 const counters = document.querySelector('.counters');
+const zoom = document.getElementById("zoom");
+
 let score = 10000;
 let time = 0;
 let timerInterval;
@@ -11,25 +13,62 @@ let poçosIndices = [];
 let wumpusIndex;
 let ouroIndex;
 let cells = [];
+let scale = 1;
+let panning = false;
+let pointX = 0;
+let pointY = 0;
+let start = { x: 0, y: 0 };
 
-// Recupera as configurações salvas e gera o labirinto
+function setTransform() {
+    zoom.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+}
+
+zoom.onmousedown = function(e) {
+    e.preventDefault();
+    start = { x: e.clientX - pointX, y: e.clientY - pointY };
+    panning = true;
+}
+
+zoom.onmouseup = function(e) {
+    panning = false;
+}
+
+zoom.onmousemove = function(e) {
+    e.preventDefault();
+    if (!panning) {
+        return;
+    }
+    pointX = (e.clientX - start.x);
+    pointY = (e.clientY - start.y);
+    setTransform();
+}
+ 
+zoom.onwheel = function(e) {
+    e.preventDefault();
+    const xs = (e.clientX - pointX) / scale;
+    const ys = (e.clientY - pointY) / scale;
+    const delta = (e.wheelDelta ? e.wheelDelta : -e.deltaY);
+    (delta > 0) ? (scale *= 1.2) : (scale /= 1.2);
+    pointX = e.clientX - xs * scale;
+    pointY = e.clientY - ys * scale;
+    setTransform();
+}
+
 const selectedLevel = parseInt(localStorage.getItem('selectedLevel')) || 1;
 const rows = selectedLevel + 3;
 const cols = selectedLevel + 3;
 
-// Função para limpar o labirinto
 function clearLabirinto() {
     topSection.innerHTML = '';
     cells = [];
 }
 
-// Função para gerar dinamicamente as células do labirinto
 function generateLabirinto() {
     clearLabirinto();
     poçosIndices = [];
 
-    topSection.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
-    topSection.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+    topSection.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    topSection.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 
     for (let i = 0; i < rows * cols; i++) {
         const cell = document.createElement('div');
@@ -60,10 +99,10 @@ function generateLabirinto() {
     cells[wumpusIndex].appendChild(wumpus);
 
     const fedorPositions = [];
-    if (wumpusIndex - cols >= 0) fedorPositions.push(wumpusIndex - cols); // acima
-    if (wumpusIndex + cols < cells.length) fedorPositions.push(wumpusIndex + cols); // abaixo
-    if (wumpusIndex % cols > 0) fedorPositions.push(wumpusIndex - 1); // esquerda
-    if (wumpusIndex % cols < cols - 1) fedorPositions.push(wumpusIndex + 1); // direita
+    if (wumpusIndex - cols >= 0) fedorPositions.push(wumpusIndex - cols);
+    if (wumpusIndex + cols < cells.length) fedorPositions.push(wumpusIndex + cols);
+    if (wumpusIndex % cols > 0) fedorPositions.push(wumpusIndex - 1);
+    if (wumpusIndex % cols < cols - 1) fedorPositions.push(wumpusIndex + 1);
 
     fedorPositions.forEach(index => {
         const fedor = document.createElement('img');
@@ -84,10 +123,10 @@ function generateLabirinto() {
         cells[poçoIndex].appendChild(poço);
 
         const brisaPositions = [];
-        if (poçoIndex - cols >= 0) brisaPositions.push(poçoIndex - cols); // acima
-        if (poçoIndex + cols < cells.length) brisaPositions.push(poçoIndex + cols); // abaixo
-        if (poçoIndex % cols > 0) brisaPositions.push(poçoIndex - 1); // esquerda
-        if (poçoIndex % cols < cols - 1) brisaPositions.push(poçoIndex + 1); // direita
+        if (poçoIndex - cols >= 0) brisaPositions.push(poçoIndex - cols);
+        if (poçoIndex + cols < cells.length) brisaPositions.push(poçoIndex + cols);
+        if (poçoIndex % cols > 0) brisaPositions.push(poçoIndex - 1);
+        if (poçoIndex % cols < cols - 1) brisaPositions.push(poçoIndex + 1);
 
         brisaPositions.forEach(index => {
             const brisa = document.createElement('img');
@@ -107,34 +146,30 @@ function generateLabirinto() {
     cells[ouroIndex].appendChild(brilho);
 }
 
-// Atualiza os elementos de pontuação e tempo
 scoreElement.textContent = score;
 timerElement.textContent = time;
 
-// Função para iniciar o jogo
 function startGame() {
     playButton.style.display = 'none';
     gameButtons.style.display = 'flex';
     counters.style.display = 'flex';
     generateLabirinto();
 
-    // Inicia o timer
     timerInterval = setInterval(() => {
         time++;
         timerElement.textContent = time;
     }, 1000);
 
     const selectedAgent = localStorage.getItem('selectedAgent');
-    if(selectedAgent === "Agente 1"){
+    if (selectedAgent === "Agente 1") {
         startAgent();
-    }else if(selectedAgent === "Agente 2"){
+    } else if (selectedAgent === "Agente 2") {
         startSecondAgent();
-    }else{
+    } else {
         startThirdAgent();
     }
 }
 
-// Função para reiniciar o jogo
 function restartGame() {
     score = 10000;
     time = 0;
@@ -144,15 +179,12 @@ function restartGame() {
     startGame();
 }
 
-// Função para voltar para a tela TelaMenu.html
 function back() {
     window.location.href = '../TelaMenu.html';
 }
 
-// Adiciona eventos aos botões
 playButton.addEventListener('click', startGame);
 document.getElementById('replayButton').addEventListener('click', restartGame);
 document.getElementById('backButton').addEventListener('click', back);
 
-// Esconde os contadores inicialmente
 counters.style.display = 'none';

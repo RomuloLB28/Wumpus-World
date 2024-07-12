@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Menu</title>
-    
     <link rel="stylesheet" href="../css/stylegame.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,13 +11,15 @@
 <body>
     <main class="container">
         <h1>MAZE</h1>
-        <section class="top">
-            <!-- O labirinto é gerado aqui -->
-        </section>
+        <div id="zoom">
+            <section class="top">
+                <!-- O labirinto é gerado aqui -->
+            </section>
+        </div>
         <section class="down">
             <div class="counters">
-                <div id="score">10000</div>
-                <div id="timer">0</div>
+                <div>Score: <span id="score">10000</span></div>
+                <div>Time: <span id="timer">0</span></div>
             </div>
             <button id="playButton">PLAY</button>
             <div id="gameButtons" style="display: none;">
@@ -27,10 +28,9 @@
             </div>
         </section>
     </main>
-
     <script src="../js/scriptgame.js"></script>
     <script>
-    // Carrega o script do agente selecionado
+        // Carrega o script do agente selecionado
         const selectedAgent = localStorage.getItem('selectedAgent') || 'Agente 1'; // Default para Agente 1 se não estiver definido
         let script = document.createElement('script');
         switch (selectedAgent) {
@@ -48,6 +48,5 @@
         }
         document.head.appendChild(script);
     </script>
-
 </body>
 </html>
