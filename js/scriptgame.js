@@ -124,8 +124,14 @@ function startGame() {
         timerElement.textContent = time;
     }, 1000);
 
-    // Chama a função para iniciar o terceiro agente após o labirinto ser gerado
-    startThirdAgent();
+    const selectedAgent = localStorage.getItem('selectedAgent');
+    if(selectedAgent === "Agente 1"){
+        startAgent();
+    }else if(selectedAgent === "Agente 2"){
+        startSecondAgent();
+    }else{
+        startThirdAgent();
+    }
 }
 
 // Função para reiniciar o jogo
