@@ -42,7 +42,7 @@ zoom.onmousemove = function(e) {
     pointY = (e.clientY - start.y);
     setTransform();
 }
- 
+
 zoom.onwheel = function(e) {
     e.preventDefault();
     const xs = (e.clientX - pointX) / scale;
@@ -178,6 +178,68 @@ function restartGame() {
     clearInterval(timerInterval);
     startGame();
 }
+function saveGame() {
+    const gameState = {
+        score,
+        time,
+        poçosIndices,
+        wumpusIndex,
+        ouroIndex,
+        cells: cells.map(cell => cell.innerHTML)
+    };
+    localStorage.setItem('savedGameState', JSON.stringify(gameState));
+    alert('Game saved successfully!');
+
+    // Executa o agente 20 vezes após salvar o estado do mundo
+    executeAgentMultipleTimes(20);
+}
+
+function loadGameState() {
+    const savedGameState = JSON.parse(localStorage.getItem('savedGameState'));
+    if (savedGameState) {
+        score = savedGameState.score;
+        time = savedGameState.time;
+        poçosIndices = savedGameState.poçosIndices;
+        wumpusIndex = savedGameState.wumpusIndex;
+        ouroIndex = savedGameState.ouroIndex;
+
+        clearLabirinto();
+        cells = savedGameState.cells.map((cellHTML, index) => {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.innerHTML = cellHTML;
+            topSection.appendChild(cell);
+            return cell;
+        });
+
+        scoreElement.textContent = score;
+        timerElement.textContent = time;
+    } else {
+        alert('No saved game state found.');
+    }
+}
+
+function executeAgentAgain() {
+    return new Promise((resolve) => {
+        loadGameState(); // Carrega o labirinto salvo antes de cada execução do agente
+        const selectedAgent = localStorage.getItem('selectedAgent');
+
+        if (selectedAgent === "Agente 1") {
+            startAgent(resolve);
+        } else if (selectedAgent === "Agente 2") {
+            startSecondAgent(resolve);
+        } else {
+            startThirdAgent(resolve);
+        }
+    });
+}
+
+async function executeAgentMultipleTimes(times) {
+    for (let i = 0; i < times; i++) {
+        console.log(`agente número ${i}`);
+        await executeAgentAgain();
+    }
+}
 
 function back() {
     window.location.href = '../TelaMenu.html';
@@ -185,6 +247,7 @@ function back() {
 
 playButton.addEventListener('click', startGame);
 document.getElementById('replayButton').addEventListener('click', restartGame);
+document.getElementById('saveButton').addEventListener('click', saveGame);
 document.getElementById('backButton').addEventListener('click', back);
 
 counters.style.display = 'none';
