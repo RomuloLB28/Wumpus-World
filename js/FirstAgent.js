@@ -256,7 +256,7 @@ class FirstAgent {
 }
 
 // Função para iniciar os movimentos automáticos do agente
-function startAgent() {
+function startAgent(callback) {
     const topSection = document.querySelector('.top');
     const cells = topSection.querySelectorAll('.cell');
     const rows = selectedLevel + 3;
@@ -273,8 +273,10 @@ function startAgent() {
         } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
             clearInterval(agentInterval);
             alert('Agente venceu o jogo!');
+            if (callback) callback(); // Chama o callback se o agente vencer
         } else {
             clearInterval(agentInterval);
+            if (callback) callback(); // Chama o callback se o agente morrer
         }
     }, 1000); // Move o agente a cada segundo
 }

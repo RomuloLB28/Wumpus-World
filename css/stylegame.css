@@ -15,6 +15,7 @@ body {
     align-items: center;
     text-align: center;
     height: 100vh;
+    width: 100vw;
 }
 
 h1 {
@@ -28,24 +29,26 @@ h1 {
     gap: 0;
     margin-top: 0;
     position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .cell {
     display: flex;
-    width: 100px;
-    height: 100px;
     border: 1px solid black;
     box-sizing: border-box;
     background: #ffb570;
     position: relative;
+    justify-content: center;
+    align-items: center;
 }
 
 img {
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 5%;
+    left: 5%;
 }
 
 .down {
@@ -78,4 +81,15 @@ button {
 
 .bar.active {
     background-color: #000;
+}
+
+#zoom {
+    width: 100%;
+    height: 70vh; /* Ajuste a altura conforme necessário */
+    overflow: hidden;
+    position: relative;
+}
+
+#zoom:active {
+    cursor: grabbing;
 }
