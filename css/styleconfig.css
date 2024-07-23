@@ -1,3 +1,4 @@
+/* Estilos existentes */
 * {
     margin: 0;
     padding: 0;
@@ -57,14 +58,25 @@ body {
 }
 
 .bar {
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     margin: 0 2px;
     background-color: #ccc;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .bar.active {
     background-color: #000;
+}
+
+.bar-number {
+    position: absolute;
+    font-size: 16px;
+    color: white;
+    z-index: 1;
 }
 
 .buttons {
@@ -90,9 +102,9 @@ body {
 
 .footer {
     display: flex;
-    justify-content: center; /* Centraliza o conteúdo horizontalmente */
-    align-items: center; /* Centraliza o conteúdo verticalmente */
-    height: 50px; /* Altura do rodapé */
+    justify-content: center;
+    align-items: center;
+    height: 50px;
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -101,12 +113,55 @@ body {
 
 .footer p {
     margin: 0;
-    font-size: 12px; /* Tamanho da fonte do texto do rodapé */
-    color: #333; /* Cor do texto do rodapé */
+    font-size: 12px;
+    color: #333;
 }
+
 button {
     padding: 10px 20px;
     margin: 5px;
     font-size: 14px;
+    cursor: pointer;
+}
+
+/* Estilos do modal */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%; /* Could be more or less, depending on screen size */
+    height: 100%;
+    overflow-y: auto; /* Add vertical scroll if needed */
+    text-align: center;
+    position: relative;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
     cursor: pointer;
 }

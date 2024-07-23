@@ -32,23 +32,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateLevelBars() {
         levelBarsElement.innerHTML = '';
-        for (let i = 1; i <= 11; i++) {
+        for (let i = 1; i <= 17; i++) { // Allow selection up to 17
             const bar = document.createElement('div');
             bar.className = 'bar';
             if (i <= currentLevel) {
                 bar.classList.add('active');
             }
+            const barNumber = document.createElement('span');
+            barNumber.className = 'bar-number';
+            barNumber.textContent = i + 3; // Adjust the number to represent the grid size
+            bar.appendChild(barNumber);
             levelBarsElement.appendChild(bar);
         }
     }
 
     leftArrowLevel.addEventListener('click', () => {
-        currentLevel = (currentLevel > 1) ? currentLevel - 1 : 11;
+        currentLevel = (currentLevel > 1) ? currentLevel - 1 : 17;
         updateLevelBars();
     });
 
     rightArrowLevel.addEventListener('click', () => {
-        currentLevel = (currentLevel < 11) ? currentLevel + 1 : 1;
+        currentLevel = (currentLevel < 17) ? currentLevel + 1 : 1;
         updateLevelBars();
     });
 
@@ -60,5 +64,24 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('selectedAgent', agents[currentAgentIndex]);
         localStorage.setItem('selectedLevel', currentLevel);
         window.location.href = '../TelaMenu.html';
+    });
+
+    // Modal
+    const modal = document.getElementById('config-modal');
+    const openModalButton = document.getElementById('open-modal');
+    const closeModalButton = document.getElementsByClassName('close-button')[0];
+
+    openModalButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeModalButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
     });
 });
