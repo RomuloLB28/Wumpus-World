@@ -165,3 +165,29 @@ button {
     text-decoration: none;
     cursor: pointer;
 }
+.top {
+    display: grid;
+    gap: 0;
+    margin-top: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.cell {
+    display: flex;
+    border: 1px solid black;
+    box-sizing: border-box;
+    background: #ffb570;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+img {
+    width: 90%;
+    height: 90%;
+    position: absolute;
+    top: 5%;
+    left: 5%;
+}
