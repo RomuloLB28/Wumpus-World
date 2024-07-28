@@ -7,10 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let agentOneDefeat = 0;
     let agentTwoWin = 0;
     let agentTwoDefeat = 0;
+    let totalAgentOne = 0;
+    let totalAgentTwo = 0;
 
     const agentNameElement = document.getElementById('agent-name');
     const leftArrowAgent = document.getElementById('left-arrow-agent');
     const rightArrowAgent = document.getElementById('right-arrow-agent');
+
+    function closeChartsModal() {
+        const chartsModal = document.getElementById('charts-modal');
+        chartsModal.classList.add('hidden');
+        chartsModal.style.display = 'none';
+    }    
 
     function updateAgentName() {
         agentNameElement.textContent = agents[currentAgentIndex];
@@ -74,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('config-modal');
     const openModalButton = document.getElementById('open-modal');
     const closeModalButton = document.getElementsByClassName('close-button')[0];
+    const closeModalButton2 = document.getElementsByClassName('close-button2')[0];
     const modalContent = document.querySelector(".modal-content");
     let pointX = 0, pointY = 0, scale = 1, panning = false, start = { x: 0, y: 0 };
 
@@ -218,18 +227,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         move() {
             if (this.isWumpusHere() || this.isPitHere()) {
+                if (!this.wumpusAlive) {
+                    this.explore();
+                }
                 this.alive = false;
-                alert('Agente morreu!');
-                agentOneDefeat += 1;
                 this.resetToInitialPosition();
                 return;
             }
-
+        
             if (this.isGoldHere()) {
                 this.grabGold();
-                alert('Agente encontrou o ouro!');
             }
-
+        
             if (this.isStenchHere()) {
                 this.shootArrow();
             } else {
@@ -320,7 +329,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.turnRight();
                         break;
                 }
-
+                if (this.isWumpusHere() || this.isPitHere()) {
+                    this.alive = false;
+                    this.resetToInitialPosition();
+                    return;
+                }
+            
                 const newPosition = this.getNextPosition();
 
                 // Se a nova posição é válida, move o agente
@@ -328,7 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.moveForward();
                     return;
                 }
-
                 // Reseta a orientação para a original se a direção não foi válida
                 this.orientation = currentDirection;
             }
@@ -389,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = selectedLevel + 3;
         const cols = selectedLevel + 3;
         const agent = new FirstAgent(cells, rows, cols);
-
+    
         const agentInterval = setInterval(() => {
             if (agent.alive && !agent.hasGold) {
                 agent.move();
@@ -398,16 +411,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 agent.explore(); // Agente se movimenta aleatoriamente ao invés de rastrear o caminho de volta
                 agent.updatePosition();
             } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
-                agentOneWin += 1;
                 clearInterval(agentInterval);
-                alert('Agente venceu o jogo!');
+                agentOneWin++;
+                totalAgentOne++;
+                console.log(`win ${agentOneWin}`);
                 if (callback) callback(); // Chama o callback se o agente vencer
-            } else {
+            } else if (!agent.alive) {
                 clearInterval(agentInterval);
                 if (callback) callback(); // Chama o callback se o agente morrer
+                agentOneDefeat++;
+                totalAgentOne++;
             }
         }, 1000); // Move o agente a cada segundo
     }
+    
     //new parte
     let poçosIndices = [];
     let wumpusIndex;
@@ -604,9 +621,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         move() {
+            if (!this.wumpusAlive && !this.isPitHere()) {
+                // Se o Wumpus está morto e não há um poço aqui, o agente não precisa fazer nada.
+                this.explore();
+            }
+        
             if (this.isWumpusHere() || this.isPitHere()) {
+                if (!this.wumpusAlive) {
+                    // Se o Wumpus está morto, não faz nada.
+                    this.explore();
+                }
                 this.alive = false;
-                alert('Agente morreu!');
                 this.resetToInitialPosition();
                 return;
             }
@@ -702,6 +727,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Reseta a orientação para a original
                 this.turn(this.reverseDirection(direction));
             });
+            if (this.isWumpusHere() || this.isPitHere()) {
+                this.alive = false;
+                this.resetToInitialPosition();
+                return;
+            }
         
             // Se houver direções disponíveis, escolhe uma aleatória para se mover
             if (availableDirections.length > 0) {
@@ -821,17 +851,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 agent.move();
                 agent.updatePosition();
             } else if (agent.alive && agent.hasGold && (agent.position.x !== 0 || agent.position.y !== 0)) {
-                agent.backtrack();
+                agent.explore(); // Agente se movimenta aleatoriamente ao invés de rastrear o caminho de volta
                 agent.updatePosition();
             } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
                 clearInterval(agentInterval);
-                alert('Agente venceu o jogo!');
-                if (callback) callback();
-            } else {
+                agentTwoWin++;
+                totalAgentTwo++;
+                console.log(`win ${agentTwoWin}`);
+                if (callback) callback(); // Chama o callback se o agente vencer
+            } else if (!agent.alive) {
                 clearInterval(agentInterval);
-                if (callback) callback();
+                if (callback) callback(); // Chama o callback se o agente morrer
+                agentTwoDefeat++;
+                totalAgentTwo++
+                console.log(`defeat ${agentTwoDefeat}`);
             }
-        }, 1000); // Move o agente a cada segundo
+        }, 1000);// Move o agente a cada segundo
     }
     //multiplas vezes
     function saveGame() {
@@ -843,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         localStorage.setItem('savedGameState', JSON.stringify(gameState));
         // Inicia a execução dos agentes 1 e 2 após salvar o estado do mundo
-        executeAgentsInSequence(3);
+        executeAgentsInSequence(5);
     }
     
     function loadGameState() {
@@ -866,6 +901,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    function showChartsModal() {
+        const chartsModal = document.getElementById('charts-modal');
+        modal.style.display = 'none';
+        chartsModal.classList.remove('hidden');
+        chartsModal.style.display = 'block';
+    }
+    
+
+    function createCharts() {
+        const chartsContainer = document.getElementById('charts-container');
+        // Exemplo de como fechar a modal manualmente com o botão de fechar
+        document.querySelectorAll('.close-button').forEach(button => {
+            button.addEventListener('click', closeChartsModal);
+        });
+        chartsContainer.innerHTML = '';
+    
+        // Cria elementos canvas para os gráficos
+        const canvasAgent1 = document.createElement('canvas');
+        canvasAgent1.id = 'agent1-chart';
+        chartsContainer.appendChild(canvasAgent1);
+    
+        const canvasAgent2 = document.createElement('canvas');
+        canvasAgent2.id = 'agent2-chart';
+        chartsContainer.appendChild(canvasAgent2);
+    
+        const ctxAgent1 = canvasAgent1.getContext('2d');
+        const ctxAgent2 = canvasAgent2.getContext('2d');
+    
+        // Gráfico para Agente 1
+        new Chart(ctxAgent1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vitórias', 'Derrotas'],
+                datasets: [{
+                    data: [agentOneWin / totalAgentOne * 100, agentOneDefeat / totalAgentOne * 100],
+                    backgroundColor: ['#36a2eb', '#ff6384'],
+                    borderColor: ['#36a2eb', '#ff6384'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Desempenho do Agente 1'
+                    }
+                }
+            }
+        });
+    
+        // Gráfico para Agente 2
+        new Chart(ctxAgent2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vitórias', 'Derrotas'],
+                datasets: [{
+                    data: [agentTwoWin / totalAgentTwo * 100, agentTwoDefeat / totalAgentTwo * 100],
+                    backgroundColor: ['#36a2eb', '#ff6384'],
+                    borderColor: ['#36a2eb', '#ff6384'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Desempenho do Agente 2'
+                    }
+                }
+            }
+        });
+    
+        showChartsModal(); // Exibe a modal com os gráficos após criar os gráficos
+    }
+    
     function executeAgentAgain(agentName) {
         return new Promise((resolve) => {
             loadGameState(); // Carrega o labirinto salvo antes de cada execução do agente
@@ -881,12 +999,33 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < times; i++) {
             console.log(`Executando ${agentName}, execução número ${i + 1}`);
             console.log(`${agentOneWin} e ${agentOneDefeat}`);
+            console.log(`${agentTwoWin} e ${agentTwoDefeat}`);
             await executeAgentAgain(agentName);
         }
     }
     
     async function executeAgentsInSequence(times) {
         await executeAgentMultipleTimes("Agente 1", times);
+        if(totalAgentOne > times){
+            totalAgentOne--;
+            if(agentOneDefeat > agentOneWin){
+                agentOneDefeat--;
+            }else{
+                agentOneWin--;
+            }
+            console.log(`${agentOneWin} e ${agentOneDefeat}`);
+        }
+        console.log(`total ${totalAgentOne}`);
         await executeAgentMultipleTimes("Agente 2", times);
-    }       
+        if(totalAgentTwo > times){
+            totalAgentTwo--;
+            if(agentTwoDefeat > agentTwoWin){
+                agentTwoDefeat--;
+            }else{
+                agentTwoWin--;
+            }
+        }
+        console.log(`total ${totalAgentTwo}`);
+        createCharts();
+    }
 });

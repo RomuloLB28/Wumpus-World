@@ -158,7 +158,6 @@ button {
     top: 10px;
     right: 20px;
 }
-
 .close-button:hover,
 .close-button:focus {
     color: black;
@@ -190,4 +189,21 @@ img {
     position: absolute;
     top: 5%;
     left: 5%;
+}
+
+.hidden {
+    display: none;
+}
+
+#charts-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#agent1-chart, #agent2-chart {
+    width: 80%;
+    height: 40%;
+    margin: 20px 0;
 }
