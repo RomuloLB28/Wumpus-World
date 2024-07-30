@@ -294,7 +294,6 @@ class SecondAgent {
 }
 
 function startSecondAgent() {
-    console.log("Iniciando agente...");
     const topSection = document.querySelector('.top');
     if (!topSection) {
         console.error("Elemento '.top' não encontrado.");
@@ -304,15 +303,12 @@ function startSecondAgent() {
     const rows = selectedLevel + 3;
     const cols = selectedLevel + 3;
     const agent = new SecondAgent(cells, rows, cols);
-    console.log("Agente instanciado:", agent);
 
     const agentInterval = setInterval(() => {
         if (agent.alive && !agent.hasGold) {
-            console.log("Agente movendo...");
             agent.move();
             agent.updatePosition();
         } else if (agent.alive && agent.hasGold && (agent.position.x !== 0 || agent.position.y !== 0)) {
-            console.log("Agente voltando...");
             agent.backtrack();
             agent.updatePosition();
         } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
