@@ -208,7 +208,7 @@ img {
     margin: 20px 0;
 }
 
-@media (max-width: 870px) {
+@media (max-width: 400px) {
     .container {
         padding: 20px;
     }
