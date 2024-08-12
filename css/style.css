@@ -62,27 +62,27 @@ body{
     color: #333; /* Cor do texto do rodapé */
 }
 
-/* Mobile-specific styles */
-@media (max-width: 600px) {
+/* Styles for screens up to 875px */
+@media (max-width: 875px) {
     .container {
-        padding: 15px;
+        padding: 20px;
     }
 
     .title {
-        font-size: 18px;
-        margin-bottom: 35px;
+        font-size: 22px;
+        margin-bottom: 40px;
     }
 
     .buttons button {
-        padding: 20px 80px;
-        font-size: 16px;
+        padding: 15px 30px;
+        font-size: 18px;
     }
 
     .footer {
-        height: 40px;
+        height: 50px;
     }
 
     .footer p {
-        font-size: 11px;
+        font-size: 14px;
     }
 }

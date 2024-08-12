@@ -208,59 +208,59 @@ img {
     margin: 20px 0;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 875px) {
     .container {
-        padding: 15px;
+        padding: 20px;
     }
 
     .title {
-        font-size: 18px;
-        margin-bottom: 35px;
+        font-size: 24px;
+        margin-bottom: 40px;
     }
 
     .agent-selector, .level-selector {
         flex-direction: column;
-        margin: 15px 0;
+        margin: 20px 0;
     }
 
     .arrow-button {
-        font-size: 22px;
-        padding: 10px;
+        font-size: 26px;
+        padding: 12px;
     }
 
     #agent-name, .bars {
-        margin: 15px 0;
-        font-size: 22px;
+        margin: 20px 0;
+        font-size: 24px;
     }
 
     .bar {
-        width: 35px;
-        height: 35px;
+        width: 40px;
+        height: 40px;
     }
 
     .bar-number {
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .save-button {
-        font-size: 16px;
-        padding: 18px 30px;
-        margin-top: 20px;
+        font-size: 18px;
+        padding: 20px 35px;
+        margin-top: 25px;
     }
 
     .modal-content {
-        padding: 20px;
+        padding: 25px;
     }
 
     .close-button {
-        font-size: 26px;
-        top: 8px;
-        right: 20px;
+        font-size: 28px;
+        top: 10px;
+        right: 25px;
     }
 
     #agent1-chart, #agent2-chart {
         width: 100%;
         height: auto;
-        margin: 15px 0;
+        margin: 20px 0;
     }
 }
