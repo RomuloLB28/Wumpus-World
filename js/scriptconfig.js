@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartsModal = document.getElementById('charts-modal');
         chartsModal.classList.add('hidden');
         chartsModal.style.display = 'none';
-    }    
+    }
 
     function updateAgentName() {
         agentNameElement.textContent = agents[currentAgentIndex];
@@ -234,11 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.resetToInitialPosition();
                 return;
             }
-        
+
             if (this.isGoldHere()) {
                 this.grabGold();
             }
-        
+
             if (this.isStenchHere()) {
                 this.shootArrow();
             } else {
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.resetToInitialPosition();
                     return;
                 }
-            
+
                 const newPosition = this.getNextPosition();
 
                 // Se a nova posição é válida, move o agente
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = selectedLevel + 3;
         const cols = selectedLevel + 3;
         const agent = new FirstAgent(cells, rows, cols);
-    
+
         const agentInterval = setInterval(() => {
             if (agent.alive && !agent.hasGold) {
                 agent.move();
@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1000); // Move o agente a cada segundo
     }
-    
+
     //new parte
     let poçosIndices = [];
     let wumpusIndex;
@@ -546,28 +546,30 @@ document.addEventListener('DOMContentLoaded', () => {
             this.path = [];
             this.visited = new Set();
             this.shotArrows = new Set(); // Para evitar atirar na mesma posição repetidamente
+            this.lastSafePosition = null; // Adicionado para armazenar a última posição segura
+            this.returning = false;
         }
-    
+
         turnLeft() {
             const directions = ['N', 'W', 'S', 'E'];
             this.orientation = directions[(directions.indexOf(this.orientation) + 1) % 4];
         }
-    
+
         turnRight() {
             const directions = ['N', 'E', 'S', 'W'];
             this.orientation = directions[(directions.indexOf(this.orientation) + 1) % 4];
         }
-    
+
         turnUp() {
             const directions = ['W', 'S', 'E', 'N'];
             this.orientation = directions[(directions.indexOf(this.orientation) + 1) % 4];
         }
-    
+
         turnDown() {
             const directions = ['E', 'S', 'W', 'N'];
             this.orientation = directions[(directions.indexOf(this.orientation) + 1) % 4];
         }
-    
+
         moveForward() {
             this.path.push({ ...this.position });
             switch (this.orientation) {
@@ -585,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
             }
         }
-    
+
         grabGold() {
             this.hasGold = true;
             const index = this.position.y * this.cols + this.position.x;
@@ -593,33 +595,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const glitter = this.cells[index].querySelector("img[src*='Brilho.png']");
             if (gold) gold.remove();
             if (glitter) glitter.remove();
+            this.returning = true; // Inicia o retorno após pegar o ouro
         }
-    
+
         isGoldHere() {
             const index = this.position.y * this.cols + this.position.x;
             return this.cells[index].querySelector("img[src*='Ouro.png']") !== null;
         }
-    
+
         isWumpusHere() {
             const index = this.position.y * this.cols + this.position.x;
             return this.cells[index].querySelector("img[src*='Wumpus.png']") !== null;
         }
-    
+
         isPitHere() {
             const index = this.position.y * this.cols + this.position.x;
             return this.cells[index].querySelector("img[src*='Poço.png']") !== null;
         }
-    
+
         isBreezeHere() {
             const index = this.position.y * this.cols + this.position.x;
             return this.cells[index].querySelector("img[src*='Brisa.png']") !== null;
         }
-    
+
         isStenchHere() {
             const index = this.position.y * this.cols + this.position.x;
             return this.cells[index].querySelector("img[src*='Fedor.png']") !== null;
         }
-    
+
         move() {
             if (!this.wumpusAlive && !this.isPitHere()) {
                 // Se o Wumpus está morto e não há um poço aqui, o agente não precisa fazer nada.
@@ -635,33 +638,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.resetToInitialPosition();
                 return;
             }
-    
+        
             if (this.isGoldHere()) {
                 this.grabGold();
-                alert('Agente encontrou o ouro!');
+                console.log('Agente encontrou o ouro!');
+                this.returning = true; // Inicia o retorno após pegar o ouro
             }
-    
-            // Marca a posição atual como visitada
-            this.visited.add(`${this.position.x},${this.position.y}`);
-    
-            if (this.isStenchHere()) {
-                this.shootArrow();
+        
+            if (this.returning) {
+                if (this.path.length > 0) {
+                    // Volta pelo caminho registrado
+                    const previousPosition = this.path.pop();
+                    this.position = previousPosition;
+                    this.updatePosition(); // Atualiza a posição do agente na visualização
+                } else {
+                    // Chegou à posição inicial
+                    this.returning = false;
+                    console.log('Agente voltou para a posição inicial com o ouro!');
+                }
             } else {
-                this.explore();
+                // Marca a posição atual como visitada
+                this.visited.add(`${this.position.x},${this.position.y}`);
+                if (this.isStenchHere()) {
+                    this.shootArrow();
+                } else {
+                    this.explore();
+                }
             }
         }
-    
+
         shootArrow() {
             const currentPosKey = `${this.position.x},${this.position.y}`;
-    
+
             if (this.shotArrows.has(currentPosKey)) {
                 this.explore();
                 return;
             }
-    
+
             this.shotArrows.add(currentPosKey);
             this.changeAgentImage("AgenteAtirando.png");
-    
+
             setTimeout(() => {
                 const nextPosition = this.getNextPosition();
                 if (this.isStenchHere() && this.wumpusAlive && this.isWumpusAdjacent(nextPosition)) {
@@ -669,13 +685,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 this.changeAgentImage("AgenteAndando.gif");
             }, 1000);
-    
+
             setTimeout(() => {
                 this.removeAgentImage();
                 this.explore();
             }, 1500);
         }
-    
+
         isWumpusAdjacent(position) {
             const adjacentPositions = [
                 { x: position.x, y: position.y - 1 },
@@ -683,13 +699,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 { x: position.x - 1, y: position.y },
                 { x: position.x + 1, y: position.y }
             ];
-    
+
             return adjacentPositions.some(pos => {
                 const index = pos.y * this.cols + pos.x;
                 return this.cells[index] && this.cells[index].querySelector("img[src*='Wumpus.png']") !== null;
             });
         }
-    
+
         killWumpus(position) {
             this.wumpusAlive = false;
             const adjacentPositions = [
@@ -698,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { x: position.x - 1, y: position.y },
                 { x: position.x + 1, y: position.y }
             ];
-    
+
             adjacentPositions.forEach(pos => {
                 const index = pos.y * this.cols + pos.x;
                 if (this.cells[index]) {
@@ -709,21 +725,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-    
-        explore() {
-            const nextPosition = this.getNextPosition();
-            const availableDirections = [];
         
+        explore() {
+
+            const availableDirections = [];
             // Verifica cada direção disponível
             ['left', 'right', 'up', 'down'].forEach(direction => {
                 this.turn(direction);
                 const newPosition = this.getNextPosition();
-                
+
                 // Se a nova posição é válida e não foi visitada antes, adiciona à lista de direções disponíveis
                 if (this.isPositionValid(newPosition) && !this.visited.has(`${newPosition.x},${newPosition.y}`)) {
                     availableDirections.push(direction);
                 }
-                
+
                 // Reseta a orientação para a original
                 this.turn(this.reverseDirection(direction));
             });
@@ -732,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.resetToInitialPosition();
                 return;
             }
-        
+
             // Se houver direções disponíveis, escolhe uma aleatória para se mover
             if (availableDirections.length > 0) {
                 const randomIndex = Math.floor(Math.random() * availableDirections.length);
@@ -743,11 +758,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.backtrack();
             }
         }
-        
+
         isPositionValid(position) {
             return position.x >= 0 && position.x < this.cols && position.y >= 0 && position.y < this.rows;
         }
-        
+
         reverseDirection(direction) {
             switch (direction) {
                 case 'left':
@@ -762,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return direction;
             }
         }
-        
+
         turn(direction) {
             switch (direction) {
                 case 'left':
@@ -779,8 +794,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
             }
         }
-        
-    
+
+
         getNextPosition() {
             const nextPosition = { ...this.position };
             switch (this.orientation) {
@@ -799,21 +814,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return nextPosition;
         }
-    
+
         backtrack() {
             if (this.path.length > 0) {
                 const previousPosition = this.path.pop();
                 this.position = previousPosition;
             }
         }
-    
+
         resetToInitialPosition() {
             this.position = { x: 0, y: 0 };
             this.orientation = gerarOrientacaoAleatoria();
             this.path = [];
             this.shotArrows.clear(); // Reset the shot arrows to allow new shots
         }
-    
+
         updatePosition() {
             const index = this.position.y * this.cols + this.position.x;
             let agent = document.querySelector("img[src*='AgenteAndando.gif'], img[src*='AgenteAtirando.gif']");
@@ -822,19 +837,19 @@ document.addEventListener('DOMContentLoaded', () => {
             agent.src = '../Images/AgenteAndando.gif';
             this.cells[index].appendChild(agent);
         }
-    
+
         changeAgentImage(imageSrc) {
             const index = this.position.y * this.cols + this.position.x;
             let agent = document.querySelector("img[src*='AgenteAndando.gif'], img[src*='AgenteAtirando.gif']");
             if (agent) agent.src = `../Images/${imageSrc}`;
         }
-    
+
         removeAgentImage() {
             const agentImages = document.querySelectorAll("img[src*='AgenteAtirando.png']");
             agentImages.forEach(img => img.remove());
         }
     }
-    
+
     function startSecondAgent(callback) {
         const topSection = document.querySelector('.top');
         if (!topSection) {
@@ -845,13 +860,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = selectedLevel + 3;
         const cols = selectedLevel + 3;
         const agent = new SecondAgent(cells, rows, cols);
-    
+
         const agentInterval = setInterval(() => {
             if (agent.alive && !agent.hasGold) {
                 agent.move();
                 agent.updatePosition();
             } else if (agent.alive && agent.hasGold && (agent.position.x !== 0 || agent.position.y !== 0)) {
-                agent.explore(); // Agente se movimenta aleatoriamente ao invés de rastrear o caminho de volta
+                agent.backtrack();
                 agent.updatePosition();
             } else if (agent.alive && agent.hasGold && agent.position.x === 0 && agent.position.y === 0) {
                 clearInterval(agentInterval);
@@ -863,11 +878,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(agentInterval);
                 if (callback) callback(); // Chama o callback se o agente morrer
                 agentTwoDefeat++;
-                totalAgentTwo++
+                totalAgentTwo++;
                 console.log(`defeat ${agentTwoDefeat}`);
             }
         }, 1000);// Move o agente a cada segundo
     }
+
     //multiplas vezes
     function saveGame() {
         const gameState = {
@@ -878,16 +894,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         localStorage.setItem('savedGameState', JSON.stringify(gameState));
         // Inicia a execução dos agentes 1 e 2 após salvar o estado do mundo
-        executeAgentsInSequence(5);
+        executeAgentsInSequence(20);
     }
-    
+
     function loadGameState() {
         const savedGameState = JSON.parse(localStorage.getItem('savedGameState'));
         if (savedGameState) {
             poçosIndices = savedGameState.poçosIndices;
             wumpusIndex = savedGameState.wumpusIndex;
             ouroIndex = savedGameState.ouroIndex;
-    
+
             clearLabirinto();
             cells = savedGameState.cells.map((cellHTML, index) => {
                 const cell = document.createElement('div');
@@ -900,14 +916,14 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('No saved game state found.');
         }
     }
-    
+
     function showChartsModal() {
         const chartsModal = document.getElementById('charts-modal');
         modal.style.display = 'none';
         chartsModal.classList.remove('hidden');
         chartsModal.style.display = 'block';
     }
-    
+
 
     function createCharts() {
         const chartsContainer = document.getElementById('charts-container');
@@ -916,19 +932,19 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', closeChartsModal);
         });
         chartsContainer.innerHTML = '';
-    
+
         // Cria elementos canvas para os gráficos
         const canvasAgent1 = document.createElement('canvas');
         canvasAgent1.id = 'agent1-chart';
         chartsContainer.appendChild(canvasAgent1);
-    
+
         const canvasAgent2 = document.createElement('canvas');
         canvasAgent2.id = 'agent2-chart';
         chartsContainer.appendChild(canvasAgent2);
-    
+
         const ctxAgent1 = canvasAgent1.getContext('2d');
         const ctxAgent2 = canvasAgent2.getContext('2d');
-    
+
         // Gráfico para Agente 1
         new Chart(ctxAgent1, {
             type: 'doughnut',
@@ -954,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    
+
         // Gráfico para Agente 2
         new Chart(ctxAgent2, {
             type: 'doughnut',
@@ -980,10 +996,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    
+
         showChartsModal(); // Exibe a modal com os gráficos após criar os gráficos
     }
-    
+
     function executeAgentAgain(agentName) {
         return new Promise((resolve) => {
             loadGameState(); // Carrega o labirinto salvo antes de cada execução do agente
@@ -994,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     async function executeAgentMultipleTimes(agentName, times) {
         for (let i = 0; i < times; i++) {
             console.log(`Executando ${agentName}, execução número ${i + 1}`);
@@ -1003,25 +1019,25 @@ document.addEventListener('DOMContentLoaded', () => {
             await executeAgentAgain(agentName);
         }
     }
-    
+
     async function executeAgentsInSequence(times) {
         await executeAgentMultipleTimes("Agente 1", times);
-        if(totalAgentOne > times){
+        if (totalAgentOne > times) {
             totalAgentOne--;
-            if(agentOneDefeat > agentOneWin){
+            if (agentOneDefeat > agentOneWin) {
                 agentOneDefeat--;
-            }else{
+            } else {
                 agentOneWin--;
             }
             console.log(`${agentOneWin} e ${agentOneDefeat}`);
         }
         console.log(`total ${totalAgentOne}`);
         await executeAgentMultipleTimes("Agente 2", times);
-        if(totalAgentTwo > times){
+        if (totalAgentTwo > times) {
             totalAgentTwo--;
-            if(agentTwoDefeat > agentTwoWin){
+            if (agentTwoDefeat > agentTwoWin) {
                 agentTwoDefeat--;
-            }else{
+            } else {
                 agentTwoWin--;
             }
         }

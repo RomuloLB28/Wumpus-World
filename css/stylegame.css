@@ -93,3 +93,38 @@ button {
 #zoom:active {
     cursor: grabbing;
 }
+@media (max-width: 420px) {
+    h1 {
+        font-size: 12px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    #zoom {
+        height: 60vh; /* Reduz a altura do labirinto para caber melhor na tela */
+    }
+
+    .down {
+        margin-top: 10px;
+    }
+
+    .counters {
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .counters div {
+        margin-bottom: 5px;
+        font-size: 12px; /* Ajusta o tamanho da fonte */
+    }
+
+    button {
+        padding: 8px 15px;
+        font-size: 12px; /* Reduz o tamanho da fonte dos botões */
+    }
+}
