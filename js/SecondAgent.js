@@ -17,6 +17,8 @@ class SecondAgent {
         this.path = [];
         this.visited = new Set();
         this.shotArrows = new Set(); // Para evitar atirar na mesma posição repetidamente
+        this.lastSafePosition = null; // Adicionado para armazenar a última posição segura
+        this.returning = false;
     }
 
     turnLeft() {
@@ -64,6 +66,7 @@ class SecondAgent {
         const glitter = this.cells[index].querySelector("img[src*='Brilho.png']");
         if (gold) gold.remove();
         if (glitter) glitter.remove();
+        this.returning = true; // Inicia o retorno após pegar o ouro
     }
 
     isGoldHere() {
@@ -94,25 +97,38 @@ class SecondAgent {
     move() {
         if (this.isWumpusHere() || this.isPitHere()) {
             this.alive = false;
-            alert('Agente morreu!');
+            console.log('Agente morreu!');
             this.resetToInitialPosition();
             return;
         }
-
+    
         if (this.isGoldHere()) {
             this.grabGold();
-            alert('Agente encontrou o ouro!');
+            console.log('Agente encontrou o ouro!');
+            this.returning = true; // Inicia o retorno após pegar o ouro
         }
-
-        // Marca a posição atual como visitada
-        this.visited.add(`${this.position.x},${this.position.y}`);
-
-        if (this.isStenchHere()) {
-            this.shootArrow();
+    
+        if (this.returning) {
+            if (this.path.length > 0) {
+                // Volta pelo caminho registrado
+                const previousPosition = this.path.pop();
+                this.position = previousPosition;
+                this.updatePosition(); // Atualiza a posição do agente na visualização
+            } else {
+                // Chegou à posição inicial
+                this.returning = false;
+                console.log('Agente voltou para a posição inicial com o ouro!');
+            }
         } else {
-            this.explore();
+            // Marca a posição atual como visitada
+            this.visited.add(`${this.position.x},${this.position.y}`);
+            if (this.isStenchHere()) {
+                this.shootArrow();
+            } else {
+                this.explore();
+            }
         }
-    }
+    }    
 
     shootArrow() {
         const currentPosKey = `${this.position.x},${this.position.y}`;
@@ -173,24 +189,33 @@ class SecondAgent {
         });
     }
 
+    backtrackToLastSafePosition() {
+        if (this.lastSafePosition) {
+            this.position = this.lastSafePosition;
+            this.lastSafePosition = null; // Limpa a última posição segura após voltar
+            this.path = []; // Limpa o caminho para evitar looping
+            this.updatePosition();
+        }
+    }
+
     explore() {
         const nextPosition = this.getNextPosition();
         const availableDirections = [];
-    
+
         // Verifica cada direção disponível
         ['left', 'right', 'up', 'down'].forEach(direction => {
             this.turn(direction);
             const newPosition = this.getNextPosition();
-            
+
             // Se a nova posição é válida e não foi visitada antes, adiciona à lista de direções disponíveis
             if (this.isPositionValid(newPosition) && !this.visited.has(`${newPosition.x},${newPosition.y}`)) {
                 availableDirections.push(direction);
             }
-            
+
             // Reseta a orientação para a original
             this.turn(this.reverseDirection(direction));
         });
-    
+
         // Se houver direções disponíveis, escolhe uma aleatória para se mover
         if (availableDirections.length > 0) {
             const randomIndex = Math.floor(Math.random() * availableDirections.length);
@@ -201,11 +226,11 @@ class SecondAgent {
             this.backtrack();
         }
     }
-    
+
     isPositionValid(position) {
         return position.x >= 0 && position.x < this.cols && position.y >= 0 && position.y < this.rows;
     }
-    
+
     reverseDirection(direction) {
         switch (direction) {
             case 'left':
@@ -220,7 +245,7 @@ class SecondAgent {
                 return direction;
         }
     }
-    
+
     turn(direction) {
         switch (direction) {
             case 'left':
@@ -237,7 +262,7 @@ class SecondAgent {
                 break;
         }
     }
-    
+
 
     getNextPosition() {
         const nextPosition = { ...this.position };

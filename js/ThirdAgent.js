@@ -1,8 +1,8 @@
 // Configurações do AG
-const popSize = 100;
+const popSize = 50;
 const genomeLength = 50;
-const generations = 100;
-const mutationRate = 0.02;
+const generations = 1000;
+const mutationRate = 0.05;
 
 function gerarOrientacaoAleatoria() {
     var orientacoes = ['N', 'S', 'E', 'W', 'P'];  // Adiciona 'P' para permanecer parado
@@ -23,32 +23,11 @@ function grabGold(individual) {
 // Função para verificar se há ouro na célula atual
 function isGoldHere(individual) {
     const index = individual.position.y * cols + individual.position.x;
-    if (cells[index] && cells[index].querySelector("img[src*='Ouro.png']") !== null) {
-        return true;
-    }
-    return false;
-}
-
-// Função para verificar se há Wumpus na célula atual
-function isWumpusHere(individual) {
-    const index = individual.position.y * cols + individual.position.x;
-    if (cells[index] && cells[index].querySelector("img[src*='Wumpus.png']") !== null) {
-        return true;
-    }
-    return false;
-}
-
-// Função para verificar se há poço na célula atual
-function isPitHere(individual) {
-    const index = individual.position.y * cols + individual.position.x;
-    if (cells[index] && cells[index].querySelector("img[src*='Poço.png']") !== null) {
-        return true;
-    }
-    return false;
+    return cells[index].querySelector("img[src*='Ouro.png']") !== null;
 }
 
 // Geração inicial
-function generatePopulation(size, genomeLength,n) {
+function generatePopulation(size, genomeLength) {
     let population = [];
     for (let i = 0; i < size; i++) {
         let individual = {
@@ -57,8 +36,7 @@ function generatePopulation(size, genomeLength,n) {
             orientation: gerarOrientacaoAleatoria(),
             hasGold: false,
             alive: true,
-            fitness: 0, // Adiciona a propriedade fitness
-            knowledge: Array(n).fill().map(() => Array(n).fill({ isPit: false, isWumpus: false })) // Memória do agente
+            fitness: 0 // Adiciona a propriedade fitness
         };
         for (let j = 0; j < genomeLength; j++) {
             individual.genome.push(Math.floor(Math.random() * 4));
@@ -68,13 +46,14 @@ function generatePopulation(size, genomeLength,n) {
     return population;
 }
 
+// Função de avaliação
 function evaluate(individual, n, poços, wumpus, ouro) {
-    let { position, genome, knowledge } = individual;
-    let x = position.x, y = position.y;
+    let { position, genome } = individual;
+    let x = position.x, y = position.y;  // Posição inicial
     let hasGold = false;
     let fitness = 0;
     let genomeIndex = 0;
-
+    
     while (genomeIndex < genome.length) {
         let action = genome[genomeIndex++];
         
@@ -95,21 +74,25 @@ function evaluate(individual, n, poços, wumpus, ouro) {
 
         individual.position = { x, y };
 
-        if (isPitHere(individual)) {
-            knowledge[x][y].isPit = true;
-            individual.alive = false;
-            individual.fitness -= 2500;
-            console.log("Agente Morreu no poço");
-            console.log(`${individual.fitness}`);
+        // Verifica se o agente caiu em um poço (Pit)
+        if (poços.some(p => p[0] === x && p[1] === y)) {
+            individual.alive = false; // Marca o agente como morto
+            if (!individual.alive) {
+                fitness -= 1500;  // Penaliza se o indivíduo estiver morto
+                console.log("Agente Morreu no poço");
+                console.log(`${individual.fitness}`);
+            }
             break;
         }
 
-        if (isWumpusHere(individual)) {
-            knowledge[x][y].isWumpus = true;
-            individual.alive = false;
-            individual.fitness -= 2500;
-            console.log("Agente Morreu para o wumpus");
-            console.log(`${individual.fitness}`);
+        // Verifica se o agente encontrou o Wumpus
+        if (x === wumpus[0] && y === wumpus[1]) {
+            individual.alive = false; // Marca o agente como morto
+            if (!individual.alive) {
+                fitness -= 1500;  // Penaliza se o indivíduo estiver morto
+                console.log("Agente Mrreu para o wumpus");
+                console.log(`${individual.fitness}`);
+            }
             break;
         }
 
@@ -130,7 +113,7 @@ function evaluate(individual, n, poços, wumpus, ouro) {
         }
 
         if (x < 0 || x >= n || y < 0 || y >= n) {
-            fitness -= 1000;
+            fitness -= 200;
             break;
         }
     }
@@ -138,6 +121,7 @@ function evaluate(individual, n, poços, wumpus, ouro) {
     individual.fitness = Math.max(0, fitness);
     return individual.fitness;
 }
+
 
 // Seleção (torneio) - Apenas entre indivíduos com fitness > 0 e vivos
 function tournamentSelection(population, fitnesses) {
@@ -158,21 +142,23 @@ function tournamentSelection(population, fitnesses) {
     return selected;
 }
 
-// Crossover alternando genes de forma aleatória entre os pais
+// Crossover com metade dos genes do pai1 e metade do pai2
 function crossover(parent1, parent2) {
     // Verifica se os pais são definidos e têm o atributo 'genome'
     if (!parent1 || !parent2 || !parent1.genome || !parent2.genome) {
         console.error('Pais inválidos ou sem genoma:', parent1, parent2);
         return [];
     }
+
     let offspringGenome = [];
-    for (let i = 0; i < genomeLength; i++) {
-        if (Math.random() < 0.5) {
-            offspringGenome.push(parent1.genome[i]);
-        } else {
-            offspringGenome.push(parent2.genome[i]);
-        }
-    }
+    let midpoint = Math.floor(genomeLength / 2);
+
+    // Pega a primeira metade dos genes do pai1
+    offspringGenome = offspringGenome.concat(parent1.genome.slice(0, midpoint));
+
+    // Pega a segunda metade dos genes do pai2
+    offspringGenome = offspringGenome.concat(parent2.genome.slice(midpoint, genomeLength));
+
     return offspringGenome;
 }
 
@@ -180,14 +166,13 @@ function crossover(parent1, parent2) {
 function mutate(individual, mutationRate) {
     for (let i = 0; i < individual.genome.length; i++) {
         if (Math.random() < mutationRate) {
-            individual.genome[i] = Math.floor(Math.random() * 5);  // Atualiza para 5 ações possíveis
+            individual.genome[i] = Math.floor(Math.random() * 4);
         }
     }
     return individual;
 }
-
 async function runGeneticAlgorithm(n, poços, wumpus, ouro) {
-    let population = generatePopulation(popSize, genomeLength, n);  // Gera a população inicial
+    let population = generatePopulation(popSize, genomeLength);  // Gera a população inicial
 
     for (let generation = 0; generation < generations; generation++) {
         let fitnesses = population.map(individual => evaluate(individual, n, poços, wumpus, ouro));  // Avalia o fitness de cada indivíduo
@@ -209,8 +194,7 @@ async function runGeneticAlgorithm(n, poços, wumpus, ouro) {
                 orientation: parent1.orientation,
                 hasGold: false,
                 alive: true,
-                fitness: 0,  // Adiciona a propriedade fitness
-                knowledge: Array(n).fill().map(() => Array(n).fill({ isPit: false, isWumpus: false })) // Memória do agente
+                fitness: 0  // Adiciona a propriedade fitness
             });
         }
 
@@ -253,6 +237,7 @@ async function drawIndividual(individual, n, poços, wumpus, ouro, generation) {
     individualElement.src = '../Images/AgenteAndando.gif';
     individualElement.classList.add('individual');
 
+    // Remove o indivíduo da posição anterior, se existir
     const previousElement = document.querySelector('.individual');
     if (previousElement && previousElement.parentElement) {
         previousElement.parentElement.removeChild(previousElement);
@@ -263,14 +248,16 @@ async function drawIndividual(individual, n, poços, wumpus, ouro, generation) {
     }
 
     for (let step = 0; step < individual.genome.length; step++) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));  // Delay entre os passos
 
         const action = individual.genome[step];
 
+        // Verifica se a célula atual e o elemento existem antes de tentar remover o elemento
         if (cells[x * cols + y] && cells[x * cols + y].contains(individualElement)) {
             cells[x * cols + y].removeChild(individualElement);
         }
 
+        // Atualiza a posição com base na ação
         if (action === 0) {  // Up
             x = Math.max(0, x - 1);
         } else if (action === 1) {  // Down
@@ -279,10 +266,9 @@ async function drawIndividual(individual, n, poços, wumpus, ouro, generation) {
             y = Math.max(0, y - 1);
         } else if (action === 3) {  // Right
             y = Math.min(n - 1, y + 1);
-        } else if (action === 4) {  // Stay (Permanecer parado)
-            // Não altera a posição
         }
 
+        // Verifica se a nova célula existe antes de tentar adicionar o elemento
         if (cells[x * cols + y]) {
             cells[x * cols + y].appendChild(individualElement);
         }
@@ -290,7 +276,6 @@ async function drawIndividual(individual, n, poços, wumpus, ouro, generation) {
 
     console.log(`Geração ${generation}: Melhor indivíduo ${JSON.stringify(individual)}`);
 }
-
 document.addEventListener('DOMContentLoaded', (event) => {
     // Inicia o terceiro agente
     startThirdAgent();
