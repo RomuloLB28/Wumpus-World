@@ -61,28 +61,3 @@ body{
     font-size: 12px; /* Tamanho da fonte do texto do rodapé */
     color: #333; /* Cor do texto do rodapé */
 }
-
-/* Styles for screens up to 875px */
-@media (max-width: 400px) {
-    .container {
-        padding: 20px;
-    }
-
-    .title {
-        font-size: 22px;
-        margin-bottom: 40px;
-    }
-
-    .buttons button {
-        padding: 15px 30px;
-        font-size: 18px;
-    }
-
-    .footer {
-        height: 50px;
-    }
-
-    .footer p {
-        font-size: 14px;
-    }
-}
