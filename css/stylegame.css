@@ -93,38 +93,39 @@ button {
 #zoom:active {
     cursor: grabbing;
 }
-@media (max-width: 420px) {
+
+@media (max-width: 600px) {
     h1 {
-        font-size: 12px;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        font-size: 14px;
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
 
     .container {
-        padding: 10px;
+        padding: 15px;
     }
 
     #zoom {
-        height: 60vh; /* Reduz a altura do labirinto para caber melhor na tela */
+        height: 70vh; /* Ajusta a altura do labirinto para se adequar a telas maiores */
     }
 
     .down {
-        margin-top: 10px;
+        margin-top: 15px;
     }
 
     .counters {
         flex-direction: column;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
     .counters div {
-        margin-bottom: 5px;
-        font-size: 12px; /* Ajusta o tamanho da fonte */
+        margin-bottom: 8px;
+        font-size: 14px; /* Aumenta o tamanho da fonte */
     }
 
     button {
-        padding: 8px 15px;
-        font-size: 12px; /* Reduz o tamanho da fonte dos botões */
+        padding: 10px 20px;
+        font-size: 14px; /* Aumenta o tamanho da fonte dos botões */
     }
 }

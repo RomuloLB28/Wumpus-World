@@ -207,59 +207,60 @@ img {
     height: 40%;
     margin: 20px 0;
 }
-@media (max-width: 420px) {
+
+@media (max-width: 600px) {
     .container {
-        padding: 10px;
+        padding: 15px;
     }
 
     .title {
-        font-size: 16px;
-        margin-bottom: 30px;
+        font-size: 18px;
+        margin-bottom: 35px;
     }
 
     .agent-selector, .level-selector {
         flex-direction: column;
-        margin: 10px 0;
+        margin: 15px 0;
     }
 
     .arrow-button {
-        font-size: 20px;
-        padding: 8px;
+        font-size: 22px;
+        padding: 10px;
     }
 
     #agent-name, .bars {
-        margin: 10px 0;
-        font-size: 20px;
+        margin: 15px 0;
+        font-size: 22px;
     }
 
     .bar {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
     }
 
     .bar-number {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .save-button {
-        font-size: 14px;
-        padding: 15px 25px;
-        margin-top: 15px;
+        font-size: 16px;
+        padding: 18px 30px;
+        margin-top: 20px;
     }
 
     .modal-content {
-        padding: 15px;
+        padding: 20px;
     }
 
     .close-button {
-        font-size: 24px;
-        top: 5px;
-        right: 15px;
+        font-size: 26px;
+        top: 8px;
+        right: 20px;
     }
 
     #agent1-chart, #agent2-chart {
         width: 100%;
         height: auto;
-        margin: 10px 0;
+        margin: 15px 0;
     }
 }
