@@ -94,7 +94,7 @@ button {
     cursor: grabbing;
 }
 
-@media (max-width: 875px) {
+@media (max-width: 870px) {
     h1 {
         font-size: 18px;
         margin-top: 20px;

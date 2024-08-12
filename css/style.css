@@ -63,7 +63,7 @@ body{
 }
 
 /* Styles for screens up to 875px */
-@media (max-width: 875px) {
+@media (max-width: 870px) {
     .container {
         padding: 20px;
     }
