@@ -15,7 +15,7 @@ O agente, ao se mover pela caverna, tem percepções limitadas:
 - **Brisa:** Indica que há um poço em uma sala adjacente.
 - **Brilho:** Indica que o ouro está na sala em que o agente se encontra.
 - **Grito:** Indica que o Wumpus foi morto. O agente pode matá-lo disparando uma flecha em direção a uma sala onde suspeita que o Wumpus esteja.
-
+![game](https://github.com/user-attachments/assets/f9842c84-ba9b-49ed-ac90-87817fb3bf8e)
 ### Decisões e Estratégia
 O desafio do Mundo de Wumpus está em como o agente decide quais movimentos fazer com base em percepções limitadas e parciais. O agente deve usar lógica e inferência para determinar com segurança onde o Wumpus e os poços estão, evitando-os enquanto busca o ouro.
 
