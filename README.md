@@ -1,5 +1,5 @@
 # Wumpus-World
-
+![wumpus](https://github.com/user-attachments/assets/b472fd79-6a1b-4ba5-9cdb-4e106bf0a4cf)
 O "Mundo de Wumpus" é um clássico problema de inteligência artificial que ilustra como um agente pode tomar decisões baseadas em percepções parciais do ambiente. Trata-se de um ambiente em que um agente, geralmente representado como um jogador, deve explorar uma caverna quadrada e desconhecida, composta por salas interconectadas. O objetivo é encontrar o ouro escondido e sair da caverna sem ser atacado pelo Wumpus, uma criatura mortal, ou cair em poços perigosos.
 
 ### Estrutura do Mundo
