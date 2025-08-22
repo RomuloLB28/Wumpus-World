@@ -1,24 +1,108 @@
 # Wumpus-World
+
 ![wumpus](https://github.com/user-attachments/assets/b472fd79-6a1b-4ba5-9cdb-4e106bf0a4cf)
-O "Mundo de Wumpus" é um clássico problema de inteligência artificial que ilustra como um agente pode tomar decisões baseadas em percepções parciais do ambiente. Trata-se de um ambiente em que um agente, geralmente representado como um jogador, deve explorar uma caverna quadrada e desconhecida, composta por salas interconectadas. O objetivo é encontrar o ouro escondido e sair da caverna sem ser atacado pelo Wumpus, uma criatura mortal, ou cair em poços perigosos.
 
-### Estrutura do Mundo
-A caverna é representada por uma grade, onde cada célula pode conter:
-- **Ouro:** O objetivo do agente é localizar e pegar o ouro.
-- **Wumpus:** Uma criatura mortal que, se o agente entrar em sua sala, o mata.
-- **Poços:** Se o agente cair em um poço, ele também morre.
-- **Sala Vazia:** Uma sala que não contém perigos nem recompensas.
+O **Mundo de Wumpus** é um clássico problema de **Inteligência Artificial** que demonstra como um agente pode tomar decisões em ambientes parcialmente observáveis.
 
-### Percepções do Agente
-O agente, ao se mover pela caverna, tem percepções limitadas:
-- **Fedor:** Indica que o Wumpus está em uma sala adjacente.
-- **Brisa:** Indica que há um poço em uma sala adjacente.
-- **Brilho:** Indica que o ouro está na sala em que o agente se encontra.
-- **Grito:** Indica que o Wumpus foi morto. O agente pode matá-lo disparando uma flecha em direção a uma sala onde suspeita que o Wumpus esteja.
+O agente (jogador) deve explorar uma caverna **desconhecida**, encontrar o ouro escondido e sair vivo — evitando o **Wumpus**, uma criatura mortal, e **poços perigosos** espalhados pelo mapa.
+
+Este projeto implementa uma simulação interativa desse mundo, permitindo estudar raciocínio lógico, planejamento e tomada de decisão sob incerteza.
+
+---
+
+## 🎮 Estrutura do Mundo
+
+A caverna é representada por uma **grade (grid)**, onde cada célula pode conter:
+
+* 🟡 **Ouro:** objetivo principal do agente.
+* 👹 **Wumpus:** criatura mortal (mata o agente ao entrar na sala).
+* 🕳️ **Poços:** armadilhas mortais.
+* ⬜ **Sala vazia:** espaço seguro sem perigos.
+
 ![game](https://github.com/user-attachments/assets/f9842c84-ba9b-49ed-ac90-87817fb3bf8e)
-### Decisões e Estratégia
-O desafio do Mundo de Wumpus está em como o agente decide quais movimentos fazer com base em percepções limitadas e parciais. O agente deve usar lógica e inferência para determinar com segurança onde o Wumpus e os poços estão, evitando-os enquanto busca o ouro.
 
-### Objetivo Final
-O objetivo do agente é, portanto, encontrar e pegar o ouro, e depois sair da caverna com segurança, minimizando riscos. Essa tarefa é usada em estudos de IA para demonstrar conceitos como planejamento, raciocínio lógico, e tomada de decisão sob incerteza.
+---
 
+## 👀 Percepções do Agente
+
+Ao se mover, o agente recebe **pistas limitadas** do ambiente:
+
+* 💨 **Brisa:** há um poço em sala adjacente.
+* 👃 **Fedor:** o Wumpus está por perto.
+* ✨ **Brilho:** ouro encontrado na sala atual.
+* 📢 **Grito:** o Wumpus foi morto (quando o agente acerta a flecha).
+
+---
+
+## 🧠 Decisões e Estratégia
+
+O grande desafio está em **como o agente toma decisões**:
+
+* Ele deve usar **lógica e inferência** para deduzir a posição de poços e do Wumpus.
+* Precisa balancear **risco vs. recompensa**.
+* Planeja movimentos para **sobreviver, coletar o ouro e sair da caverna**.
+
+Esse cenário é amplamente usado em cursos de IA para ilustrar:
+
+* Planejamento
+* Raciocínio lógico
+* Tomada de decisão sob incerteza
+
+---
+
+## 🚀 Como executar o projeto
+
+### Clonando o repositório
+
+```bash
+git clone https://github.com/RomuloLB28/Wumpus-World.git
+cd Wumpus-World
+```
+
+### Executando (exemplo com Python, ajuste se necessário)
+
+```bash
+python main.py
+```
+
+> ⚠️ Dependências ou frameworks usados devem ser listados aqui (ex.: pygame, numpy, etc.).
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+|
+├── assets/         ← imagens, sprites e recursos visuais
+├── src/            ← código-fonte principal
+├── main.py         ← ponto de entrada da aplicação
+├── requirements.txt← dependências (se houver)
+└── README.md       ← documentação do projeto
+```
+
+---
+
+## 🎯 Objetivo Final
+
+O agente deve:
+
+1. Encontrar e pegar o **ouro**.
+2. Evitar **Wumpus** e **poços**.
+3. Sair da caverna **em segurança**.
+
+---
+
+## 🤝 Contribuições
+
+Sugestões e melhorias são bem-vindas!
+Abra uma issue ou envie um PR 🚀
+
+---
+
+## 📜 Licença
+
+Este projeto está sob a licença **MIT** (ou ajuste conforme necessário).
+
+---
+
+👉 Mano, quer que eu já adicione **badges (status do projeto, linguagem, licenças)** nesse README pra deixar ele mais chamativo no GitHub?
